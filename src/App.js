@@ -1,29 +1,13 @@
+import {TodosPage} from './components/TodosPage.jsx';
 import styles from './App.module.css';
-import { useEffect, useState } from 'react';
 
-export function App() {
-	const [todos, setTodos] = useState([]);
-
-	useEffect(() => {
-		fetch('https://jsonplaceholder.typicode.com/todos')
-			.then((loadedData) => loadedData.json())
-			.then((loadedTodos) => {
-				setTodos(loadedTodos);
-			});
-	}, []);
-
+export function App(){
 	return (
 		<div className={styles.App}>
-			<div className={styles.title}>TO-DO LIST</div>
-			<div className={styles.todo_list}>
-				{todos.map(({ id, title, completed }) => {
-					return (
-						<div className={styles.todo_title} data-complete={completed} key={id}>
-							{title}
-						</div>
-					);
-				})}
-			</div>
+			<h1 className={styles.title}>To-Do List</h1>
+			<TodosPage/>
 		</div>
 	);
 }
+
+// json-server --watch src/db.json --port 3005
