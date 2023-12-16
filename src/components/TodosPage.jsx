@@ -4,13 +4,15 @@ import { TodoList } from "./TodoList";
 import { useDebounce } from "../hooks/useDebounce";
 import { TodoInput } from "./TodoInput";
 import { InputSearch } from "./InputSearch";
+import { ref, onValue } from 'firebase/database';
 
 export function TodosPage(){
 	const [todos, setTodos] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [note, setNote] = useState('');
-	const [refreshTodos, setRefreshTodos] = useState(false)
+	const [refreshTodos, setRefreshTodos] = useState(false);
+	const [sort, setSort] = useState(false);
 	const [isCompleting, setIsCompleting] = useState(false);
 
 	const debounceValue = useDebounce(searchQuery, 500);
@@ -24,26 +26,20 @@ export function TodosPage(){
 			.finally(() => setIsLoading(false));
 	};
 
-	function sortTodos(id){
-		function compareStrings(a, b) {
-			a = a.toLowerCase();
-			b = b.toLowerCase();
-			return (a < b) ? -1 : (a > b) ? 1 : 0;
-		};
-
-		fetch(`http://localhost:3005/todos`)
+	function sortTodos(){
+		let sortTitle = '?_sort=title';
+		sort ? sortTitle = '?_sort=title' : sortTitle = '';
+		fetch(`http://localhost:3005/todos${sortTitle}`)
 			.then((responce) => responce.json())
-    		.then((data) => {
+			.then((data) => {
+				setTodos(data);
 				console.log(data)
-				setTodos(data)
-        		data.sort((a, b) => {
-					return compareStrings(a.title, b.title)
-				})})
+			})
 			.finally(() => {
-				setRefreshTodos(!refreshTodos)
+				setSort(!sort)
+				setIsLoading(false)
 			});
     };
-
 
 	function editTodo(id, payLoad){
 		fetch(`http://localhost:3005/todos/${id}`, {

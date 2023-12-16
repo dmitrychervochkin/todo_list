@@ -1,29 +1,19 @@
 {
   "todos": [
     {
-      "title": "б",
+      "title": "C",
       "completed": false,
-      "id": 7
+      "id": 1
     },
     {
-      "title": "а",
+      "title": "A",
       "completed": false,
-      "id": 8
+      "id": 3
     },
     {
-      "title": "д",
+      "title": "B",
       "completed": false,
-      "id": 9
-    },
-    {
-      "title": "в",
-      "completed": false,
-      "id": 10
-    },
-    {
-      "title": "г",
-      "completed": false,
-      "id": 11
+      "id": 4
     }
   ]
 }

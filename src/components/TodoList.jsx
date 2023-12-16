@@ -12,7 +12,7 @@ export function TodoList({ completeTodo, editTodo, deleteTodo, data }){
 					deleteTodo={deleteTodo}
 					completeTodo={completeTodo}
 				/>
-			)).reverse()}
+			))}
 		</ul>
 	);
 };
