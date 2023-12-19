@@ -4,9 +4,9 @@ import { TodoItem } from './TodoItem';
 export function TodoList({ completeTodo, editTodo, deleteTodo, data }){
 	return(
 		<ul>
-			{data.map((todo) => (
+			{Object.entries(data).map(([id, {...todo}]) => (
 				<TodoItem
-					key={todo.id}
+					key={id}
 					{...todo}
 					editTodo={editTodo}
 					deleteTodo={deleteTodo}

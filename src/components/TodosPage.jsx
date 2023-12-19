@@ -4,11 +4,12 @@ import { TodoList } from "./TodoList";
 import { useDebounce } from "../hooks/useDebounce";
 import { TodoInput } from "./TodoInput";
 import { InputSearch } from "./InputSearch";
-import { ref, onValue } from 'firebase/database';
+import { ref, onValue, push, set } from 'firebase/database';
+import { db } from '../firebase'
 
 export function TodosPage(){
-	const [todos, setTodos] = useState([]);
-	const [isLoading, setIsLoading] = useState(false);
+	const [todos, setTodos] = useState({});
+	const [isLoading, setIsLoading] = useState(true);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [note, setNote] = useState('');
 	const [refreshTodos, setRefreshTodos] = useState(false);
@@ -18,12 +19,13 @@ export function TodosPage(){
 	const debounceValue = useDebounce(searchQuery, 500);
 
 	function loadedTodos(){
-		fetch(`http://localhost:3005/todos?q=${searchQuery}`)
-			.then((responce) => responce.json())
-			.then((data) => {
-				setTodos(data);
-			})
-			.finally(() => setIsLoading(false));
+		const todosDbRef = ref(db, 'todos');
+		// `todos?q=${searchQuery}`
+		return onValue(todosDbRef, (snapshot) => {
+			const loadedTodos = snapshot.val() || [];
+			setTodos(loadedTodos);
+			setIsLoading(false);
+		});
 	};
 
 	function sortTodos(){
@@ -33,7 +35,6 @@ export function TodosPage(){
 			.then((responce) => responce.json())
 			.then((data) => {
 				setTodos(data);
-				console.log(data)
 			})
 			.finally(() => {
 				setSort(!sort)
@@ -42,36 +43,44 @@ export function TodosPage(){
     };
 
 	function editTodo(id, payLoad){
-		fetch(`http://localhost:3005/todos/${id}`, {
-			method: 'PATCH',
-			headers: {'Content-Type': 'application/json;charset=utf-8'},
-			body: JSON.stringify({ ...payLoad })
-		})
-			.then((responce) => responce.json())
-			.then((data) => {
-				const todosIndex = todos.findIndex((prod) => prod.id === id);
-				const copyData = todos.slice();
-				copyData[todosIndex] = data;
-				setTodos(copyData);
+		const todosDbRef = ref(db, `todos/${id}`);
+		set(todosDbRef, {...payLoad})
+			.then((item) => {
+				const todosIndex = Object.entries(todos).findIndex((prod, index) => console.log(id));
+				// console.log(todosIndex)
+				const copyData = Object.entries(todos).slice();
+				copyData[todosIndex] = payLoad;
+				// console.log(copyData[todosIndex][0])
+				// console.log((copyData[3][1]))
+				// console.log(item)
+				// setTodos(copyData);
 			})
 			.finally(() => setIsLoading(false));
+
+		// fetch(`http://localhost:3005/todos/${id}`, {
+		// 	method: 'PATCH',
+		// 	headers: {'Content-Type': 'application/json;charset=utf-8'},
+		// 	body: JSON.stringify({ ...payLoad })
+		// })
+		// 	.then((responce) => responce.json())
+		// 	.then((data) => {
+		// 		console.log(data)
+		// 		const todosIndex = Object.entries(todos).findIndex((prod) => prod.id === id);
+		// 		const copyData = Object.entries(todos).slice();
+		// 		copyData[todosIndex] = data;
+		// 		setTodos(copyData);
+		// 	})
+		// 	.finally(() => setIsLoading(false));
 	};
 
 	function addTodo(){
 		if(note !== ''){
-			fetch(`http://localhost:3005/todos`, {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json;charset=utf-8'},
-				body: JSON.stringify({
-					title: note,
-      				completed: false,
-				})
+			const todosDbRef = ref(db, 'todos');
+			push(todosDbRef, {
+				title: note,
+      			completed: false
 			})
-				.then((responce) => responce.json())
-				.then((data) => {
-					console.log(data)
-					setRefreshTodos(!refreshTodos)
-				})
+				.then((data) => {})
 				.finally(() => setNote(''));
 		}
 	};
