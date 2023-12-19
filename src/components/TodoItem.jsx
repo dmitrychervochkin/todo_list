@@ -8,7 +8,7 @@ export function TodoItem({ completeTodo, editTodo, deleteTodo, ...props }){
 	function handleEdit(){
 		setIsEdit((prevState) => !prevState)
 	};
-	
+
 	return(
 		<>
 			{isEdit ? (

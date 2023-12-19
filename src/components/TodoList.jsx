@@ -8,6 +8,7 @@ export function TodoList({ completeTodo, editTodo, deleteTodo, data }){
 				<TodoItem
 					key={id}
 					{...todo}
+					id={id}
 					editTodo={editTodo}
 					deleteTodo={deleteTodo}
 					completeTodo={completeTodo}
@@ -16,3 +17,5 @@ export function TodoList({ completeTodo, editTodo, deleteTodo, data }){
 		</ul>
 	);
 };
+
+

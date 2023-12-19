@@ -4,7 +4,7 @@ import { TodoList } from "./TodoList";
 import { useDebounce } from "../hooks/useDebounce";
 import { TodoInput } from "./TodoInput";
 import { InputSearch } from "./InputSearch";
-import { ref, onValue, push, set } from 'firebase/database';
+import { ref, onValue, push, update, remove } from 'firebase/database';
 import { db } from '../firebase'
 
 export function TodosPage(){
@@ -44,33 +44,13 @@ export function TodosPage(){
 
 	function editTodo(id, payLoad){
 		const todosDbRef = ref(db, `todos/${id}`);
-		set(todosDbRef, {...payLoad})
-			.then((item) => {
-				const todosIndex = Object.entries(todos).findIndex((prod, index) => console.log(id));
-				// console.log(todosIndex)
-				const copyData = Object.entries(todos).slice();
-				copyData[todosIndex] = payLoad;
-				// console.log(copyData[todosIndex][0])
-				// console.log((copyData[3][1]))
-				// console.log(item)
-				// setTodos(copyData);
+		update(todosDbRef, {...payLoad})
+			.then(() => {
+
 			})
 			.finally(() => setIsLoading(false));
 
-		// fetch(`http://localhost:3005/todos/${id}`, {
-		// 	method: 'PATCH',
-		// 	headers: {'Content-Type': 'application/json;charset=utf-8'},
-		// 	body: JSON.stringify({ ...payLoad })
-		// })
-		// 	.then((responce) => responce.json())
-		// 	.then((data) => {
-		// 		console.log(data)
-		// 		const todosIndex = Object.entries(todos).findIndex((prod) => prod.id === id);
-		// 		const copyData = Object.entries(todos).slice();
-		// 		copyData[todosIndex] = data;
-		// 		setTodos(copyData);
-		// 	})
-		// 	.finally(() => setIsLoading(false));
+
 	};
 
 	function addTodo(){
@@ -86,33 +66,17 @@ export function TodosPage(){
 	};
 
 	function deleteTodo(event){
-		fetch(`http://localhost:3005/todos/${event.target.id}`, {
-			method: 'DELETE'
-		})
-			.then((responce) => responce.json())
-			.then((data) => {
-				setRefreshTodos(!refreshTodos)
-			})
-			.finally(() => {});
+		const todosDbRef = ref(db, `todos/${event.target.id}`);
+		remove(todosDbRef)
 	}
 
 	function completeTodo(event){
-		fetch(`http://localhost:3005/todos/${event.target.id}`, {
-			method: 'PATCH',
-			headers: {'Content-Type': 'application/json;charset=utf-8'},
-				body: JSON.stringify({
-					completed: isCompleting,
-				})
+		const todosDbRef = ref(db, `todos/${event.target.id}`);
+		update(todosDbRef, {completed: !isCompleting})
+			.then(() => {
 
 			})
-			.then((rawResponce) => rawResponce.json())
-			.then((response) => {
-				setRefreshTodos(!refreshTodos)
-
-			})
-			.finally(() => {
-				setIsCompleting(!isCompleting)
-			})
+			.finally(() => setIsCompleting(!isCompleting));
 	}
 
 	useEffect(() => {
